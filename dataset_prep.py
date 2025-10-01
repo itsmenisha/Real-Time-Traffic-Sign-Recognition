@@ -4,6 +4,7 @@ from pathlib import Path
 from sklearn.model_selection import StratifiedShuffleSplit
 from PIL import Image
 
+
 # Paths (edit if needed)
 GTSRB_ROOT = Path("data/GTSRB/Train")   # Original full training dataset
 OUTPUT_ROOT = Path("data/mini_dataset")  # New mini dataset folder
@@ -35,3 +36,4 @@ def create_mini_dataset():
 
 if __name__ == "__main__":
     create_mini_dataset()
+
