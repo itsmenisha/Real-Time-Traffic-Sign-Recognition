@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)  
 [![Ultralytics YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange)](https://docs.ultralytics.com)  
 
-This project implements a **real-time traffic sign recognition system** using **YOLOv8 Nano / YOLOv8n2** and the **German Traffic Sign Recognition Benchmark (GTSRB)** dataset from [Kaggle](https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign).
+This project implements a **real-time traffic sign recognition system** using **YOLOv8 Nano / YOLOv8n2** and the **German Traffic Sign Recognition Benchmark (GTSRB)** dataset from <a href="https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign" target="_blank">Kaggle</a>.
 
 ---
 
