@@ -1,6 +1,4 @@
-Absolutely! Here’s the finalized `README.md` ready for direct copy-paste:
 
-```markdown
 # Real-Time Traffic Sign Recognition
 
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)  
@@ -71,7 +69,6 @@ pip install ultralytics
 pip install yolov8n2
 ```
 
----
 
 ## Data Preparation
 
