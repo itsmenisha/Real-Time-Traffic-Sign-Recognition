@@ -31,6 +31,9 @@ These are converted to **YOLO TXT format** using the script [`change_CSV_into_TX
 class_id x_center_norm y_center_norm width_norm height_norm
 
 ````
+![Traffic Sign Example](images/val_batch1_labels.jpg)
+
+
 
 ---
 
@@ -90,7 +93,8 @@ dataset/
 
 4. Prepare the **mini dataset** using [`prepare-dataset.py`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/prepare_dataset.py). This script performs sampling, flipping, and organizes images for faster training.
 
-5. Configure YOLO with [`minidataset.yaml`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/mini_dataset.yaml):
+
+6. Configure YOLO with [`minidataset.yaml`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/mini_dataset.yaml):
 
 ```yaml
 train: path/to/dataset/images/train
