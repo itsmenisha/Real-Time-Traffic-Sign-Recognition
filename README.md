@@ -170,6 +170,9 @@ Real-Time-Traffic-Sign-Recognition/
 
 ## Future Improvements
 
+![Traffic Sign Example](images/confusion_matrix_normalized.png)
+
+
 * Train on GPU for faster results.(Using Google colab)
 * Use YOLOv8 Small or Medium for higher accuracy.
 * Improve data augmentation (rotations, brightness, scaling, mosaic).
