@@ -108,22 +108,9 @@ names: ['Speed_limit_20','Speed_limit_30','Speed_limit_50', ..., 'End_of_no_over
 
 Train YOLOv8 Nano / YOLOv8n2 using [`train_yolo.py`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/train_yolo.py):
 
-```python
-from ultralytics import YOLO
+![Traffic Sign Example](images/results.png)
 
-model = YOLO("yolov8n.pt")  # or YOLOv8n2
 
-model.train(
-    data="minidataset.yaml",
-    imgsz=416,
-    epochs=50,
-    batch=6,
-    device="cpu",       # Use 'cuda' for GPU
-    workers=4,
-    patience=10,
-    augment=True
-)
-```
 
 **Notes:**
 
