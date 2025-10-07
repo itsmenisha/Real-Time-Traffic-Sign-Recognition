@@ -1,6 +1,4 @@
-Absolutely! Here’s a **complete `README.md`** ready for copy-paste, fully polished with badges, quick start, and clear instructions for GitHub:
 
-````markdown
 # Real-Time Traffic Sign Recognition
 
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/) 
