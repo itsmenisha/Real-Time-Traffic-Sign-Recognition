@@ -145,6 +145,9 @@ model = YOLO("path/to/best.pt")
 results = model.predict(source="path/to/images_or_video", save=True)
 ```
 
+![Traffic Sign Example](images/German-traffic-sign-recognition-benchmark-GTSRB-dataset.jpg)
+
+
 * `source` can be an image, folder, or video.
 * there is also a testing data in the germen dataset.
 * Results include bounding boxes and predicted class labels drawn on images.
@@ -191,11 +194,4 @@ Real-Time-Traffic-Sign-Recognition/
 2. [Ultralytics YOLOv8 Documentation](https://docs.ultralytics.com)
 3. [YOLOv8 Pretrained Models](https://github.com/ultralytics/ultralytics)
 
-```
 
----
-
-If you want, I can **also replace all `link-to-script` and `link-to-yaml` placeholders with actual relative paths** for your repo so someone can just click and open them.  
-
-Do you want me to do that too?
-```
