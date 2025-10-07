@@ -1,28 +1,25 @@
 import os
 import random
 from pathlib import Path
-from PIL import Image
+from shutil import copy2
 from sklearn.model_selection import train_test_split
-import torch
-from ultralytics import YOLO
-import numpy as np
+from PIL import Image
 
 # ----------------------------
 # SETTINGS
 # ----------------------------
 GTSRB_PATH = Path(
     r"C:\Users\Acer\Desktop\projects\Real-Time Traffic Sign Recognition\data\GTSRB\Train")
+COORD_PATH = Path(
+    r"C:\Users\Acer\Desktop\projects\Real-Time Traffic Sign Recognition\data\GTSRB\trainvalues")
 OUTPUT_PATH = Path(
-    r"C:\Users\Acer\Desktop\projects\Real-Time Traffic Sign Recognition\data\yolo_dataset")
-IMG_SIZE = (416, 416)
-MAX_IMAGES = 15000
+    r"C:\Users\Acer\Desktop\projects\Real-Time Traffic Sign Recognition\data\mini_dataset")
+TARGET_IMAGES = 8000
 TEST_SIZE = 0.2
 RANDOM_SEED = 42
-BATCH_SIZE = 200
 AUGMENT = True
 
 random.seed(RANDOM_SEED)
-torch.manual_seed(RANDOM_SEED)
 
 # ----------------------------
 # CREATE YOLO FOLDERS
@@ -32,82 +29,88 @@ for split in ["train", "val"]:
     (OUTPUT_PATH / "labels" / split).mkdir(parents=True, exist_ok=True)
 
 # ----------------------------
-# COLLECT ALL IMAGES
+# BUILD MINI DATASET
 # ----------------------------
-all_images = []
+mini_dataset = []
+
 for class_id in range(43):
-    class_folder = GTSRB_PATH / f"{class_id:05d}"
+    class_folder = GTSRB_PATH / str(class_id)
     if not class_folder.exists():
-        class_folder = GTSRB_PATH / str(class_id)
-    if not class_folder.exists():
-        print(f"❌ Class {class_id} missing, skipping")
         continue
+
     class_images = [p for p in class_folder.glob(
         "*.*") if p.suffix.lower() in [".ppm", ".png", ".jpg", ".jpeg"]]
-    for img_path in class_images:
-        all_images.append((img_path, class_id))
 
-print(f"Total images found: {len(all_images)}")
+    for i in range(0, len(class_images), 10):
+        batch = class_images[i:i+10]
+        selected = random.sample(batch, min(2, len(batch)))
+
+        for img_path in selected:
+            if len(mini_dataset) >= TARGET_IMAGES:
+                break
+            txt_file = COORD_PATH / str(class_id) / f"{img_path.stem}.txt"
+            if txt_file.exists():
+                mini_dataset.append((img_path, txt_file, class_id))
+
+        if len(mini_dataset) >= TARGET_IMAGES:
+            break
+    if len(mini_dataset) >= TARGET_IMAGES:
+        break
+
+print(f"Total mini dataset size: {len(mini_dataset)}")
 
 # ----------------------------
-# SIMPLE RANDOM SELECTION (no heavy feature extraction)
+# SPLIT TRAIN/VAL
 # ----------------------------
-selected_images = random.sample(all_images, min(MAX_IMAGES, len(all_images)))
-print(f"Selected mini-batch images: {len(selected_images)}")
-
-# ----------------------------
-# TRAIN/VAL SPLIT
-# ----------------------------
-train_images, val_images = train_test_split(
-    selected_images,
+train_data, val_data = train_test_split(
+    mini_dataset,
     test_size=TEST_SIZE,
-    stratify=[x[1] for x in selected_images],
+    stratify=[x[2] for x in mini_dataset],
     random_state=RANDOM_SEED
 )
 
 # ----------------------------
-# FUNCTION TO SAVE YOLO LABELS
+# FUNCTION TO SAVE IMAGES & LABELS
 # ----------------------------
 
 
-def save_yolo_label(img_path, class_id, img_out_dir, label_out_dir, augment=False):
-    img = Image.open(img_path).convert("RGB").resize(IMG_SIZE)
-    img_out_dir.mkdir(parents=True, exist_ok=True)
-    label_out_dir.mkdir(parents=True, exist_ok=True)
+def save_yolo_files(data, split, augment=False):
+    img_out_dir = OUTPUT_PATH / "images" / split
+    label_out_dir = OUTPUT_PATH / "labels" / split
 
-    # Save original
-    img.save(img_out_dir / img_path.name)
-    x_center, y_center, width, height = 0.5, 0.5, 1.0, 1.0
-    with open(label_out_dir / f"{img_path.stem}.txt", "w") as f:
-        f.write(f"{class_id} {x_center} {y_center} {width} {height}\n")
+    for img_path, txt_file, class_id in data:
+        # Copy original image
+        copy2(img_path, img_out_dir / img_path.name)
+        # Copy original label
+        copy2(txt_file, label_out_dir / txt_file.name)
 
-    # Optional horizontal flip
-    if augment:
-        img_flipped = img.transpose(Image.FLIP_LEFT_RIGHT)
-        flipped_name = img_path.stem + "_flip" + img_path.suffix
-        img_flipped.save(img_out_dir / flipped_name)
-        with open(label_out_dir / f"{img_path.stem}_flip.txt", "w") as f:
-            f.write(f"{class_id} {x_center} {y_center} {width} {height}\n")
+        if augment:
+            # Augmentation: horizontal flip
+            img = Image.open(img_path).convert("RGB")
+            img_flipped = img.transpose(Image.FLIP_LEFT_RIGHT)
+            flipped_name = img_path.stem + "_flip" + img_path.suffix
+            img_flipped.save(img_out_dir / flipped_name)
+
+            # Flip label coordinates horizontally
+            with open(txt_file, "r") as f:
+                coords = f.read().strip().split()
+            if len(coords) == 5:
+                cls_id, x_center, y_center, width, height = coords
+                x_center = 1.0 - float(x_center)  # flip horizontally
+                flipped_label = f"{cls_id} {x_center:.6f} {y_center} {width} {height}\n"
+                label_flipped_name = img_path.stem + "_flip.txt"
+                with open(label_out_dir / label_flipped_name, "w") as f:
+                    f.write(flipped_label)
+
 
 # ----------------------------
-# SAVE TRAIN AND VAL DATA IN BATCHES
+# SAVE TRAIN/VAL
 # ----------------------------
+print("Saving TRAIN images & labels...")
+save_yolo_files(train_data, "train", augment=AUGMENT)
+
+print("Saving VAL images & labels...")
+save_yolo_files(val_data, "val", augment=False)
 
 
-def process_in_batches(images_list, img_dir, label_dir, augment=False):
-    for i in range(0, len(images_list), BATCH_SIZE):
-        batch = images_list[i:i+BATCH_SIZE]
-        print(
-            f"Processing batch {i//BATCH_SIZE + 1} / {(len(images_list)-1)//BATCH_SIZE + 1}")
-        for img_path, class_id in batch:
-            save_yolo_label(img_path, class_id, img_dir,
-                            label_dir, augment=augment)
-
-
-process_in_batches(train_images, OUTPUT_PATH / "images/train",
-                   OUTPUT_PATH / "labels/train", augment=AUGMENT)
-process_in_batches(val_images, OUTPUT_PATH / "images/val",
-                   OUTPUT_PATH / "labels/val", augment=False)
-
-print(
-    f"✅ YOLO dataset ready: {len(train_images)} train, {len(val_images)} val")
+print(f"✅ Mini YOLO dataset ready at {OUTPUT_PATH}")
