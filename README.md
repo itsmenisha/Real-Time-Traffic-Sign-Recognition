@@ -1,59 +1,44 @@
+Absolutely! Here’s the finalized `README.md` ready for direct copy-paste:
 
+```markdown
 # Real-Time Traffic Sign Recognition
 
-[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/) 
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)  
 [![Ultralytics YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange)](https://docs.ultralytics.com)  
 
-This project implements a **real-time traffic sign recognition system** using **YOLOv8 Nano** and the **German Traffic Sign Recognition Benchmark (GTSRB)** dataset. The system detects and classifies traffic signs in images or videos, suitable for driver assistance and research purposes.
-
----
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Dataset](#dataset)
-- [Environment Setup](#environment-setup)
-- [Data Preparation](#data-preparation)
-- [Training](#training)
-- [Inference](#inference)
-- [Folder Structure](#folder-structure)
-- [Future Improvements](#future-improvements)
-- [References](#references)
-- [Quick Start](#quick-start)
-
----
-
-## Project Overview
-
-The project workflow:
-
-1. Convert CSV labels from the GTSRB dataset to YOLO TXT format.
-2. Create a **mini dataset** for faster experiments using stratified sampling and data augmentation.
-3. Train **YOLOv8 Nano** on the prepared dataset.
-4. Perform inference on images or videos to detect traffic signs.
+This project implements a **real-time traffic sign recognition system** using **YOLOv8 Nano / YOLOv8n2** and the **German Traffic Sign Recognition Benchmark (GTSRB)** dataset from [Kaggle](https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign).
 
 ---
 
 ## Dataset
 
 - **Training images:** 39,209  
-- **Test images:** 12,630  
+- **Mini dataset for training:** 7,840 images  
+- **Validation images:** 1,560 images  
+- **Remaining images (original + flipped):** 12,630  
 - **Classes:** 43 traffic sign categories  
 
-Download the dataset from the [official GTSRB website](https://benchmark.ini.rub.de/gtsrb_news.html) and extract it into your project directory.
+The dataset contains a CSV file with all images, which includes the following columns:
 
-The dataset contains CSV files specifying:
+```
 
-- Bounding box coordinates (X, Y, width, height)
-- Class IDs
+Width, Height, Roi.X1, Roi.Y1, Roi.X2, Roi.Y2, ClassId, Path
 
-These must be converted into YOLO format for training.
+```
+
+These are converted to **YOLO TXT format** using the script [`change_CSV_into_TXT.py`](link-to-script), where each TXT file contains:
+
+```
+
+class_id x_center_norm y_center_norm width_norm height_norm
+
+````
 
 ---
 
 ## Environment Setup
 
-1. **Create a virtual environment:**
+1. **Create a Python virtual environment:**
 
 ```bash
 python -m venv yolov8_env
@@ -79,27 +64,18 @@ source yolov8_env/bin/activate
 pip install --upgrade pip
 ```
 
-4. **Install Ultralytics YOLOv8:**
+4. **Install YOLOv8 and Ultralytics packages:**
 
 ```bash
 pip install ultralytics
-```
-
-5. **Verify installation:**
-
-```bash
-yolo --help
+pip install yolov8n2
 ```
 
 ---
 
 ## Data Preparation
 
-1. Convert CSV labels to YOLO TXT format using `fortex.py`. Each label file should follow:
-
-```
-class_id x_center_norm y_center_norm width_norm height_norm
-```
+1. Convert CSV labels to YOLO TXT format using [`change_CSV_into_TXT.py`](link-to-script).
 
 2. Create the following folder structure:
 
@@ -113,11 +89,11 @@ dataset/
     val/
 ```
 
-3. Place images in `images/train` and `images/val`, and the corresponding `.txt` labels in `labels/train` and `labels/val`.
+3. Place images in `images/train` and `images/val`, and corresponding TXT labels in `labels/train` and `labels/val`.
 
-4. Optionally, create a **mini dataset** for faster training using sampling and flipping as implemented in `fortex.py`.
+4. Prepare the **mini dataset** using [`prepare-dataset.py`](link-to-script). This script performs sampling, flipping, and organizes images for faster training.
 
-5. Create `mini_dataset.yaml` for YOLO training:
+5. Configure YOLO with [`minidataset.yaml`](link-to-yaml):
 
 ```yaml
 train: path/to/dataset/images/train
@@ -127,25 +103,25 @@ nc: 43
 names: ['Speed_limit_20','Speed_limit_30','Speed_limit_50', ..., 'End_of_no_overtaking']
 ```
 
-> Keep class names short and consistent to avoid label mismatches.
+> Keep class names short and consistent.
 
 ---
 
 ## Training
 
-Use `train_yolo.py` to train YOLOv8 Nano:
+Train YOLOv8 Nano / YOLOv8n2 using [`train_yolo.py`](link-to-script):
 
 ```python
 from ultralytics import YOLO
 
-model = YOLO("yolov8n.pt")  # Load YOLOv8 Nano pretrained model
+model = YOLO("yolov8n.pt")  # or YOLOv8n2
 
 model.train(
-    data="mini_dataset.yaml",
+    data="minidataset.yaml",
     imgsz=416,
     epochs=50,
     batch=6,
-    device="cpu",       # Change to 'cuda' for GPU
+    device="cpu",       # Use 'cuda' for GPU
     workers=4,
     patience=10,
     augment=True
@@ -155,27 +131,25 @@ model.train(
 **Notes:**
 
 * CPU training is very slow (~32 hours). GPU is highly recommended.
-* `augment=True` helps the model generalize better.
-* `patience=10` allows early stopping if improvement stalls.
+* `augment=True` helps generalization.
+* `patience=10` allows early stopping if the model stops improving.
 
 ---
 
 ## Inference
 
-Use `result.py` to test the model:
+Run inference with [`showresults.py`](link-to-script):
 
 ```python
 from ultralytics import YOLO
 
-# Load trained weights
 model = YOLO("path/to/best.pt")
 
-# Run inference
 results = model.predict(source="path/to/images_or_video", save=True)
 ```
 
-* `source` can be an image, folder of images, or video.
-* Results will include bounding boxes and predicted class labels drawn on images.
+* `source` can be an image, folder, or video.
+* Results include bounding boxes and predicted class labels drawn on images.
 
 ---
 
@@ -192,10 +166,11 @@ Real-Time-Traffic-Sign-Recognition/
 │       ├─ train/
 │       └─ val/
 │
-├─ fortex.py          # CSV to YOLO TXT conversion
-├─ train_yolo.py      # Training script
-├─ result.py          # Inference script
-├─ mini_dataset.yaml  # Dataset configuration for YOLO
+├─ change_CSV_into_TXT.py     # CSV to YOLO TXT conversion
+├─ prepare-dataset.py         # Mini dataset preparation
+├─ train_yolo.py              # Training script
+├─ showresults.py             # Inference script
+├─ minidataset.yaml           # Dataset configuration for YOLO
 └─ README.md
 ```
 
@@ -206,7 +181,7 @@ Real-Time-Traffic-Sign-Recognition/
 * Train on GPU for faster results.
 * Use YOLOv8 Small or Medium for higher accuracy.
 * Improve data augmentation (rotations, brightness, scaling, mosaic).
-* Shorten and standardize class names.
+* Standardize class names.
 * Use the full dataset for final training.
 * Explore post-processing improvements (confidence thresholds, NMS optimization).
 
@@ -214,42 +189,15 @@ Real-Time-Traffic-Sign-Recognition/
 
 ## References
 
-1. [GTSRB Official Dataset](https://benchmark.ini.rub.de/gtsrb_news.html)
+1. [GTSRB Dataset on Kaggle](https://www.kaggle.com/datasets/meowmeowmeowmeowmeow/gtsrb-german-traffic-sign)
 2. [Ultralytics YOLOv8 Documentation](https://docs.ultralytics.com)
 3. [YOLOv8 Pretrained Models](https://github.com/ultralytics/ultralytics)
 
----
-
-## Quick Start
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/yourusername/Real-Time-Traffic-Sign-Recognition.git
-cd Real-Time-Traffic-Sign-Recognition
-```
-
-2. Set up the environment and install dependencies (see Environment Setup).
-
-3. Prepare the dataset and YAML file.
-
-4. Train the model:
-
-```bash
-python train_yolo.py
-```
-
-5. Run inference on images/videos:
-
-```bash
-python result.py
-```
-
 ```
 
 ---
 
-If you want, I can also **add sample output screenshots, GIFs, and badges for “License” and “Stars”** to make it visually professional and ready for GitHub.  
+If you want, I can **also replace all `link-to-script` and `link-to-yaml` placeholders with actual relative paths** for your repo so someone can just click and open them.  
 
-Do you want me to do that as well?
+Do you want me to do that too?
 ```
