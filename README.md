@@ -72,7 +72,7 @@ pip install yolov8n2
 
 ## Data Preparation
 
-1. Convert CSV labels to YOLO TXT format using [`change_CSV_into_TXT.py`](link-to-script).
+1. Convert CSV labels to YOLO TXT format using [`change_CSV_into_TXT.py`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/changethe-csv-into-txt.py).
 
 2. Create the following folder structure:
 
@@ -88,9 +88,9 @@ dataset/
 
 3. Place images in `images/train` and `images/val`, and corresponding TXT labels in `labels/train` and `labels/val`.
 
-4. Prepare the **mini dataset** using [`prepare-dataset.py`](link-to-script). This script performs sampling, flipping, and organizes images for faster training.
+4. Prepare the **mini dataset** using [`prepare-dataset.py`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/prepare_dataset.py). This script performs sampling, flipping, and organizes images for faster training.
 
-5. Configure YOLO with [`minidataset.yaml`](link-to-yaml):
+5. Configure YOLO with [`minidataset.yaml`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/mini_dataset.yaml):
 
 ```yaml
 train: path/to/dataset/images/train
@@ -100,13 +100,13 @@ nc: 43
 names: ['Speed_limit_20','Speed_limit_30','Speed_limit_50', ..., 'End_of_no_overtaking']
 ```
 
-> Keep class names short and consistent.
+> Keep class names short and consistent.(Mine is too long)
 
 ---
 
 ## Training
 
-Train YOLOv8 Nano / YOLOv8n2 using [`train_yolo.py`](link-to-script):
+Train YOLOv8 Nano / YOLOv8n2 using [`train_yolo.py`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/train_yolo.py):
 
 ```python
 from ultralytics import YOLO
@@ -135,7 +135,7 @@ model.train(
 
 ## Inference
 
-Run inference with [`showresults.py`](link-to-script):
+Run inference with [`showresults.py`](https://github.com/itsmenisha/Real-Time-Traffic-Sign-Recognition/blob/main/show_results.py):
 
 ```python
 from ultralytics import YOLO
@@ -146,6 +146,7 @@ results = model.predict(source="path/to/images_or_video", save=True)
 ```
 
 * `source` can be an image, folder, or video.
+* there is also a testing data in the germen dataset.
 * Results include bounding boxes and predicted class labels drawn on images.
 
 ---
@@ -175,7 +176,7 @@ Real-Time-Traffic-Sign-Recognition/
 
 ## Future Improvements
 
-* Train on GPU for faster results.
+* Train on GPU for faster results.(Using Google colab)
 * Use YOLOv8 Small or Medium for higher accuracy.
 * Improve data augmentation (rotations, brightness, scaling, mosaic).
 * Standardize class names.
