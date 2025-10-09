@@ -118,7 +118,7 @@ Train YOLOv8 Nano / YOLOv8n2 using [`train_yolo.py`](https://github.com/itsmenis
 
 **Notes:**
 
-* CPU training is very slow (~32 hours). GPU is highly recommended.
+* CPU training is very slow (~23 hours). GPU is highly recommended.
 * `augment=True` helps generalization.
 * `patience=10` allows early stopping if the model stops improving.
 
