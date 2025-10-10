@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 
-
 # Paths
 csv_path = r"C:\Users\Acer\Desktop\projects\Real-Time Traffic Sign Recognition\data\GTSRB\train.csv"
 output_base = r"C:\Users\Acer\Desktop\projects\Real-Time Traffic Sign Recognition\data\GTSRB\trainvalues"
@@ -42,4 +41,5 @@ for idx, row in df.iterrows():
             f"{class_id} {x_center_norm:.6f} {y_center_norm:.6f} {width_norm:.6f} {height_norm:.6f}\n")
 
 print("✅ YOLO txt labels created and normalized.")
+
 
